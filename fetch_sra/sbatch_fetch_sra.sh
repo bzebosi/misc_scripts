@@ -7,7 +7,7 @@
 
 # Define variables
 env_name="sra_fetch_pkgs"
-script=/nfs5/BPP/Leiboff_Lab/Brian/scripts/BSA-Seq/bash/scripts/fetch_sra.sh
+script=/nfs5/BPP/Leiboff_Lab/Brian/scripts/misc_scripts/fetch_sra/fetch_sra.sh
 
 # Make allocated CPUs available to pipeline
 export threads="${SLURM_CPUS_PER_TASK:-8}"
