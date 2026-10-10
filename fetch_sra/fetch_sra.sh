@@ -40,8 +40,8 @@ fetch_sra(){
     local reads="${proj_dir}/${project}/01_raw_reads"
     local tmp="${reads}/.tmp_${sra}"
 
-    local fq1="${reads}/R1.fq.gz"
-    local fq2="${reads}/R2.fq.gz"
+    local fq1="${reads}/${sra}_R1.fq.gz"
+    local fq2="${reads}/${sra}_R2.fq.gz"
 
     local single="${tmp}/${sra}.fastq"
     local pair1="${tmp}/${sra}_1.fastq"
