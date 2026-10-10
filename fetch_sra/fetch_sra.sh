@@ -43,15 +43,27 @@ fetch_sra(){
     local fq1="${reads}/R1_fq.gz"
     local fq2="${reads}/R2_fq.gz"
 
+    local single="${tmp}/${sra}.fastq"
+    local pair1="${tmp}/${sra}_1.fastq"
+    local pair2="${tmp}/${sra}_2.fastq"
+
     # create directories 
     create_dir "${reads}" "${tmp}" || return 1
 
     # skip if both files already exist
-    if [[ -s "${fq1}" && -s "${fq2}" ]]; then
-        logmsg "${sra} already exist in $(basename ${reads}); skip download."
-        return 0
-    else
-        # Download and convert SRA to FASTQ
+    if [[ -s "${fq1}" ]]; then
+        if [[ -s ${fq2} ]]; then
+            logmsg "${sra} paired-end reads already exist; skipping"
+            return 0
+        elif [[ ! -e "${fq2}" && ! -s "${pair2}" ]]; then
+            logmsg "${sra} single-end reads already exist; skipping."
+            return 0
+        fi
+    fi
+
+    # Download and convert SRA to FASTQ
+    logmsg "Downloading ${sra} for ${project}."
+    if [[ ! -s "${single}" && ! -s "${pair1}" && ! -s "${pair2}" ]]; then
         logmsg "Downloading ${sra} for ${project}."
 
         if ! fasterq-dump "${sra}" \
@@ -62,15 +74,27 @@ fetch_sra(){
         fi
     fi
 
+    # Detect single-end or paired-end
+    local mates=2
+    if [[ -s "${single}" ]]; then
+        mates=1
+        mv "${single}" "${pair1}" || return 1
+        logmsg "Single-end reads detected for ${sra}."
+    elif [[ -s "${pair1}" && -s "${pair2}" ]]; then
+        logmsg "Paired-end reads detected for ${sra}."
+    else
+        logmsg "ERROR: Missing FASTQ files for ${sra}."
+        return 1
+    fi
 
     # Compress and rename
     local mate fastq gz
 
-    for mate in 1 2; do
+    for ((mate=1; mate<=mates; mate++)); do
         fastq="${tmp}/${sra}_${mate}.fastq"
         gz="${reads}/R${mate}.fq.gz"
 
-        if [[ -s "$gz" ]] && gzip -t "${gz}"; then
+        if [[ -s "$gz" ]]; then
             logmsg "$(basename "$gz") already exists; skipping."
             continue
         fi
@@ -87,10 +111,10 @@ fetch_sra(){
         logmsg "Compressed $(basename "$fastq") to $(basename "$gz")"
     done
 
-    # Verify both files
-    if [[ -s "$fq1" && -s "$fq2" ]]; then
+    # Verify output files
+    if [[ -s "${fq1}" ]] && { [[ "$mates" -eq 1 ]] || [[ -s "${fq2}" ]]; }; then
         logmsg "${sra} successfully downloaded and compressed."
-        rm -rf -- "$tmp"
+        rm -rf -- "${tmp}"
         return 0
     fi
 
