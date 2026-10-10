@@ -37,11 +37,11 @@ create_dir() {
 fetch_sra(){
     local sra="$1"
     local project="$2"
-    local reads="${proj_dir}/${project}/reads/${sra}"
+    local reads="${proj_dir}/${project}/01_raw_reads"
     local tmp="${reads}/.tmp_${sra}"
 
-    local fq1="${reads}/R1_fq.gz"
-    local fq2="${reads}/R2_fq.gz"
+    local fq1="${reads}/R1.fq.gz"
+    local fq2="${reads}/R2.fq.gz"
 
     local single="${tmp}/${sra}.fastq"
     local pair1="${tmp}/${sra}_1.fastq"
@@ -50,19 +50,14 @@ fetch_sra(){
     # create directories 
     create_dir "${reads}" "${tmp}" || return 1
 
-    # skip if both files already exist
-    if [[ -s "${fq1}" ]]; then
-        if [[ -s ${fq2} ]]; then
-            logmsg "${sra} paired-end reads already exist; skipping"
-            return 0
-        elif [[ ! -e "${fq2}" && ! -s "${pair2}" ]]; then
-            logmsg "${sra} single-end reads already exist; skipping."
-            return 0
-        fi
+    # Skip if paired-end reads already exist
+    if [[ -s "${fq1}" && -s "${fq2}" ]] && gzip -t "${fq1}" && gzip -t "${fq2}"; then
+        logmsg "${sra} paired-end reads already exist; skipping."
+        return 0
     fi
 
+
     # Download and convert SRA to FASTQ
-    logmsg "Downloading ${sra} for ${project}."
     if [[ ! -s "${single}" && ! -s "${pair1}" && ! -s "${pair2}" ]]; then
         logmsg "Downloading ${sra} for ${project}."
 
@@ -76,12 +71,12 @@ fetch_sra(){
 
     # Detect single-end or paired-end
     local mates=2
-    if [[ -s "${single}" ]]; then
-        mates=1
-        mv "${single}" "${pair1}" || return 1
-        logmsg "Single-end reads detected for ${sra}."
-    elif [[ -s "${pair1}" && -s "${pair2}" ]]; then
+
+    if [[ -s "${pair1}" && -s "${pair2}" ]]; then
         logmsg "Paired-end reads detected for ${sra}."
+    elif [[ -s "${single}" ]]; then
+        mates=1
+        logmsg "Single-end reads detected for ${sra}."
     else
         logmsg "ERROR: Missing FASTQ files for ${sra}."
         return 1
@@ -91,10 +86,16 @@ fetch_sra(){
     local mate fastq gz
 
     for ((mate=1; mate<=mates; mate++)); do
-        fastq="${tmp}/${sra}_${mate}.fastq"
-        gz="${reads}/R${mate}.fq.gz"
 
-        if [[ -s "$gz" ]]; then
+        if [[ "$mates" -eq 1 ]]; then
+            fastq="${single}"
+            gz="${fq1}"
+        else
+            fastq="${tmp}/${sra}_${mate}.fastq"
+            gz="${reads}/${sra}_${mate}.fq.gz"
+        fi
+
+        if [[ -s "$gz" ]] && gzip -t "$gz"; then
             logmsg "$(basename "$gz") already exists; skipping."
             continue
         fi
@@ -112,14 +113,16 @@ fetch_sra(){
     done
 
     # Verify output files
-    if [[ -s "${fq1}" ]] && { [[ "$mates" -eq 1 ]] || [[ -s "${fq2}" ]]; }; then
-        logmsg "${sra} successfully downloaded and compressed."
-        rm -rf -- "${tmp}"
-        return 0
+    # Verify output files
+    if [[ -s "${fq1}" ]] && gzip -t "${fq1}"; then
+        if [[ "$mates" -eq 1 ]] || { [[ -s "${fq2}" ]] && gzip -t "${fq2}"; }; then
+            logmsg "${sra} successfully downloaded and compressed."
+            rm -rf -- "${tmp}"
+            return 0
+        fi
     fi
 
     return 1
-
 }
 
 
