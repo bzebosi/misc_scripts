@@ -4,11 +4,9 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64  # Number of cores
 #SBATCH --job-name=rnaseq
-#SBATCH --output="rnaseq_%j.out"
-#SBATCH --error="rnaseq_%j.err"
-#SBATCH -A leiboff_lab           # Lab account (priority)
-#SBATCH -p leiboff_lab           # Lab partition
-#SBATCH -w cerebro               # Target cerebro node (optional)
+#SBATCH --output="rna_seq_%j.out"
+#SBATCH --error="rna_seq_%j.err"
+
 
 # Define variables
 env_name="rnaseq_packages"
