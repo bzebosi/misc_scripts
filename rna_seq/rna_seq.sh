@@ -5,7 +5,7 @@ source "$(dirname "$0")/config.sh"
 
 # Logging functions
 #--------------------------------------------------------------------------------------------------------
-timestamp() { date '+%Y-%m-%d %H:%M:%S'; }
+timestamp() { date '+%Y-%s m-%d %H:%M:%S'; }
 logmsg() { echo "$(timestamp): $*"; }
 
 # Validate project and return its directory
