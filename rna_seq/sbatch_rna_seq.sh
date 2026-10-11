@@ -12,7 +12,7 @@
 
 # Define variables
 env_name="rnaseq_packages"
-script=/nfs5/BPP/Leiboff_Lab/Brian/scripts/RNA_Seq/run_rnaseq.sh
+script=/nfs5/BPP/Leiboff_Lab/Brian/scripts/misc_scripts/rna_seq.sh
 
 
 # Load Conda environment management
