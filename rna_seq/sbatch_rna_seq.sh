@@ -1,17 +1,18 @@
 #!/bin/bash
 
-#SBATCH --nodes=1                 # Number of nodes
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=64  # Number of cores
-#SBATCH --job-name=rnaseq
-#SBATCH --output="rna_seq_%j.out"
-#SBATCH --error="rna_seq_%j.err"
+#SBATCH --nodes=1  # Number of tasks
+#SBATCH --cpus-per-task=8   # Number of cores
+#SBATCH --output="variant_%j.out"
+#SBATCH --error="variant_%j.error"
 
 
 # Define variables
 env_name="rnaseq_packages"
 script=/nfs5/BPP/Leiboff_Lab/Brian/scripts/misc_scripts/rna_seq/rna_seq.sh
 
+
+# Make allocated CPUs available to pipeline
+export threads="${SLURM_CPUS_PER_TASK:-8}"
 
 # Load Conda environment management
 source /local/cqls/software/x86_64/miniforge3/etc/profile.d/conda.sh
@@ -41,8 +42,10 @@ conda activate "${env_name}" || {
     exit 1
 }
 
-# Make allocated cores available
-export threads="${SLURM_CPUS_PER_TASK}"
+# Job information
+logmsg "Job ID: ${SLURM_JOB_ID}"
+logmsg "Node: ${SLURM_NODELIST}"
+logmsg "Threads: ${threads}"
 
 # Export environment details for reproducibility
 conda env export -n "${env_name}" > "${env_name}.yaml"
