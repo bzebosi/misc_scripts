@@ -27,7 +27,7 @@ if ! conda env list | awk '{print $1}' | grep -Fxq "${env_name}"; then
     conda create \
         --name "${env_name}" \
         --channel conda-forge --channel bioconda --channel defaults --strict-channel-priority \
-        fastp fastqc multiqc star=2.7.11b samtools subread jq \
+        fastp fastqc multiqc star=2.7.10b samtools subread jq \
         -y || {
             logmsg "ERROR: Failed to create Conda environment: ${env_name}"
             exit 1
