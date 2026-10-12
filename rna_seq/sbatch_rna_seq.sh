@@ -44,7 +44,7 @@ conda activate "${env_name}" || {
 
 # Use Conda STAR-plain instead of STAR-avx2
 STAR() {
-    "${CONDA_PREFIX}/bin/STAR-plain" "$@"
+    /local/cqls/opt/x86_64/bin/STAR "$@"
 }
 
 export -f STAR
