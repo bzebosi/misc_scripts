@@ -42,13 +42,6 @@ conda activate "${env_name}" || {
     exit 1
 }
 
-# Use Conda STAR-plain instead of STAR-avx2
-STAR() {
-    /local/cqls/opt/x86_64/bin/STAR "$@"
-}
-
-export -f STAR
-
 # Job information
 logmsg "Job ID: ${SLURM_JOB_ID}"
 logmsg "Node: ${SLURM_NODELIST}"
