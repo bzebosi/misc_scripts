@@ -660,7 +660,7 @@ done
 # Map reads
 for project in "${projects[@]}"; do
     for gbase in "${genomes[@]}"; do
-        map_reads "${project}" "${gbase}"
-        count_reads "${project}" "${gbase}"
+        map_reads "${project}" "${gbase}" || exit 1
+        count_reads "${project}" "${gbase}" || exit 1
     done
 done

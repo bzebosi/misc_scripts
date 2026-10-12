@@ -2,12 +2,12 @@
 
 #SBATCH --nodes=1  # Number of tasks
 #SBATCH --cpus-per-task=8   # Number of cores
-#SBATCH --output="variant_%j.out"
-#SBATCH --error="variant_%j.error"
+#SBATCH --output="rnaseq_%j.out"
+#SBATCH --error="rnaseq_%j.error"
 
 
 # Define variables
-env_name="rnaseq_packages"
+env_name="rna-seq_packages"
 script=/nfs5/BPP/Leiboff_Lab/Brian/scripts/misc_scripts/rna_seq/rna_seq.sh
 
 
@@ -27,7 +27,7 @@ if ! conda env list | awk '{print $1}' | grep -Fxq "${env_name}"; then
     conda create \
         --name "${env_name}" \
         --channel conda-forge --channel bioconda --channel defaults --strict-channel-priority \
-        fastp fastqc multiqc star samtools subread jq \
+        fastp fastqc multiqc star=2.7.11b samtools subread jq \
         -y || {
             logmsg "ERROR: Failed to create Conda environment: ${env_name}"
             exit 1
