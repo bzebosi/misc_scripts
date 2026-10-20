@@ -62,29 +62,40 @@ fetch_sra(){
         return 0
     fi
 
-    # Download and convert SRA to FASTQ
-    logmsg "Downloading ${sra} for ${project}."
-
-    rm -rf -- "${tmp}"
     create_dir "${tmp}" || return 1
 
-    if ! fasterq-dump "${sra}" \
-        --split-files --threads "${threads}" \
-        --outdir "${tmp}" --temp "${tmp}"; then
-        logmsg "ERROR: Download failed for ${sra}."
-        return 1
+    if [[ -s "${single}" || -s "${pair1}" || -s "${pair2}" ]]; then
+        logmsg "Existing FASTQ files found for ${sra}; skipping conversion."
+    else
+        logmsg "Downloading ${sra} for ${project}."
+
+        if ! fasterq-dump "${sra}" \
+            --split-files --threads "${threads}" \
+            --outdir "${tmp}" --temp "${tmp}"; then
+            logmsg "ERROR: Download failed for ${sra}."
+            return 1
+        fi
     fi
+
 
     # Detect single-end or paired-end
     local mates=2
 
     if [[ -s "${pair1}" && -s "${pair2}" ]]; then
         logmsg "Paired-end reads detected for ${sra}."
+
     elif [[ -s "${single}" && ! -e "${pair1}" && ! -e "${pair2}" ]]; then
         mates=1
         logmsg "Single-end reads detected for ${sra}."
+
+    elif [[ -s "${pair1}" && ! -e "${pair2}" && ! -e "${single}" ]]; then
+        mates=1
+        single="${pair1}"
+        logmsg "Single-end reads detected for ${sra} (_1.fastq format)."
+
     else
-        logmsg "ERROR: Missing FASTQ files for ${sra}."
+        logmsg "ERROR: Missing or unexpected FASTQ files for ${sra}."
+        ls -lh "${tmp}"
         return 1
     fi
 
