@@ -40,6 +40,13 @@ conda activate "${env_name}" || {
     exit 1
 }
 
+# Use Conda STAR-plain instead of STAR-avx2
+STAR() {
+    "${CONDA_PREFIX}/bin/STAR-plain" "$@"
+}
+
+export -f STAR
+
 # Job information
 logmsg "Job ID: ${SLURM_JOB_ID}"
 logmsg "Node: ${SLURM_NODELIST}"
