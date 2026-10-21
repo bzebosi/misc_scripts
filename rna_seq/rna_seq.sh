@@ -550,6 +550,29 @@ map_reads(){
             fi
         fi
 
+        # Index BAM if index is missing or outdated
+        if [[ ! -s "${bai}" || "${bam}" -nt "${bai}" ]]; then
+            logmsg "Indexing BAM for ${sample}..."
+
+            if ! samtools index \
+                -@ "${threads:-8}" \
+                "${bam}"; then
+
+                logmsg "ERROR: BAM indexing failed for ${sample}."
+                shopt -u nullglob
+                return 1
+            fi
+
+            logmsg "Successfully indexed ${sample}."
+        else
+            logmsg "${sample} BAM index already exists. Skipping."
+        fi
+
+
+
+
+
+
     done
 
     shopt -u nullglob
