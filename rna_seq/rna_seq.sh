@@ -520,7 +520,7 @@ map_reads(){
         fi
 
         local prefix="${align_dir}/${sample}_"
-        local bam="${bam_dir}/${sample}_Aligned.sortedByCoord.out.bam"
+        local bam="${bam_dir}/${sample}.bam"
 
         # Skip if BAM already exists
         if [[ -s "${bam}" ]]; then
@@ -532,9 +532,9 @@ map_reads(){
                 --readFilesCommand zcat --outFileNamePrefix "${prefix}" --outSAMtype BAM SortedByCoordinate; then
                 
                 # Organize STAR outputs
-                if mv "${prefix}Aligned.sortedByCoord.out.bam" "${bam_dir}/" && \
-                   mv "${prefix}"{Log.final.out,Log.out,Log.progress.out} "${log_dir}/" && \
-                   mv "${prefix}SJ.out.tab" "${sj_dir}/"; then
+                if mv "${prefix}Aligned.sortedByCoord.out.bam" "${bam}" && \
+                mv "${prefix}"{Log.final.out,Log.out,Log.progress.out} "${log_dir}/" && \
+                mv "${prefix}SJ.out.tab" "${sj_dir}/"; then
 
                     rm -rf "${prefix}_STARtmp"
                     logmsg "Successfully mapped ${sample}."
