@@ -28,10 +28,11 @@ declare -A annotation_urls=(
 declare -A project_dir=(
     [Ts3]="/nfs5/BPP/Leiboff_Lab/Brian/ts3_rnaseq"
     [Knauer]="/nfs5/BPP/Leiboff_Lab/Brian/rna_seq/Knauer"
+    [bif3]="/nfs5/BPP/Leiboff_Lab/Brian/rna_seq/bif3"
 
 )
 
 # Projects to process
 projects=(
-    "Knauer"
+    "bif3"
 )
